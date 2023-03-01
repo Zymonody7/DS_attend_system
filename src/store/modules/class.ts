@@ -1,4 +1,4 @@
-import { ClassResult } from "@/api/class";
+import ClassResult from "@/api/class";
 import { defineStore } from "pinia";
 import classApi from "@/api/class";
 export const useClassStore = defineStore("class", {
@@ -7,10 +7,13 @@ export const useClassStore = defineStore("class", {
     total: 0
   }),
   actions: {
-    async fetchClassList(page: number): Promise<ClassResult> {
-      const data = await classApi.getList(page);
-      this.total = data.pageInfo.total;
-      console.log(data);
+    async fetchClassList(
+      page: number,
+      limit: number,
+      sclass: string
+    ): Promise<stuResult> {
+      const data = await classApi.getList(page, limit, sclass);
+      this.total = data.data.list;
       return data;
     }
   }

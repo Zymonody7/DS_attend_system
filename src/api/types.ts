@@ -8,3 +8,7 @@ export interface ResType {
   msg: string;
   code: number;
 }
+export interface PageType {
+  page: number;
+  limit: number;
+}

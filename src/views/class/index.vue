@@ -85,21 +85,18 @@
           <template #default="props">
             <Motion>
               <div class="flex flex-col items-center">
-                学生头像和其他信息
-
                 <h1 class="mb-8">{{ props.row.className }}</h1>
                 <div class="flex justify-center gap-8 w-9/12 flex-wrap">
-                  <div
-                    class="h-20 bg-white"
-                    v-for="item in props.row.imgList"
-                    :key="item"
-                  >
-                    <img :src="item" class="h-40 object-cover" />
-                  </div>
+                  <img :src="props.row.sportrait" class="h-40 object-contain" />
                   <div class="max-w-lg mb-6">
-                    <div>{{ props.row.description }}</div>
+                    <div>
+                      {{
+                        props.row.label
+                          ? props.row.label
+                          : "该学生很低调，没有个性签名"
+                      }}
+                    </div>
                   </div>
-                  <div ref="mapRef" id="map" class="my-6 h-96 w-7/12" />
                 </div>
               </div>
             </Motion>
@@ -149,13 +146,13 @@
           </template>
         </el-table-column>
       </el-table>
-      <!-- <edit-dialog
+      <edit-dialog
         v-if="showDialog"
         :show="showDialog"
         :data="editData"
         @close="onDialogClose"
         @confirm="handleConfirm"
-      /> -->
+      />
       <el-pagination
         small
         background
@@ -172,69 +169,41 @@
 <script setup lang="ts">
 import Motion from "./utils/motion";
 // import { classCreateRequest, classType } from "@/api/class";
+import classApi from "@/api/class";
 import { ElButton, ElTable, ElTableColumn } from "element-plus";
 import { onMounted, ref, reactive, getCurrentInstance } from "vue";
 import { useEditDialog } from "@/hooks/useEditDialog";
-import editDialog from "./editDialog.vue";
+import editDialog from "./edit.vue";
 import { message } from "@/utils/message";
 import { useClassStore } from "@/store/modules/class";
 import { svg } from "./utils/loadingSvg";
 // import FileSaver from "file-saver";
 // import * as XLSX from "xlsx";
+import { useRoute } from "vue-router";
 defineOptions({
   name: "Class"
 });
 const { proxy } = getCurrentInstance();
 const classTable = ref([]);
-classTable.value = [
-  {
-    id: "1",
-    sno: "2020001122",
-    sclass: "2001",
-    sname: "张三",
-    label: "4",
-    absent: "12"
-  },
-  {
-    id: "1",
-    sno: "2020001122",
-    sclass: "2001",
-    sname: "张三",
-    label: "4",
-    absent: "12"
-  }
-];
+const route = useRoute();
+const sclass = route.name.toString();
+
 onMounted(async () => {
   await renderclassTable(classStore.currentPage);
 });
 const loading = ref(true);
 const renderclassTable = async (page: number) => {
   loading.value = true;
-  const data = await classStore.fetchClassList(page);
-  data.pageInfo.records.forEach(item => {
-    item.id = item.classId;
-    if (item.img && !item.img.startsWith("http")) {
-      item.imgList = JSON.parse(item.img).img;
-    }
-  });
-  classTable.value = data.pageInfo.records;
+  const data = await classStore.fetchClassList(page, 10, sclass);
+  classTable.value = data.data.list;
   loading.value = false;
 };
 const searchByName = ref("");
 // 简单筛选
-const handleFilter = (value: string, row) => {
-  return row.classType === value;
-};
 // 增加或修改
 const handleSearchByName = () => {};
-const {
-  showDialog,
-  editData,
-  handleCreate,
-  handleEdit,
-  onDialogClose,
-  handleConfirm
-} = useEditDialog<classType, classCreateRequest>(classApi, "班级");
+const { handleCreate, handleEdit, showDialog, onDialogClose, handleConfirm } =
+  useEditDialog<stuType, stuCreateRequest>(classApi, "学生");
 // 批量删除
 const classForm = ref();
 const multipleSelection = ref(false);
@@ -245,24 +214,14 @@ const getSelectionRows = (selection: classType[]) => {
     deleteList.add(item.classId);
   });
 };
-// const handleDelete = async (id: string | Set<string>) => {
-//   let delRequest = [];
-//   if (typeof id === "string") {
-//     delRequest.push(id);
-//   } else {
-//     delRequest = Array.from(id);
-//   }
-//   delRequest = delRequest.map(item => parseInt(item));
-//   const dbBack = await classApi.deleteclass(delRequest);
-//   if (dbBack.code === 0) {
-//     message("删除成功", { type: "success" });
-//   } else {
-//     message(dbBack.msg, { type: "error" });
-//   }
-//   await renderclassTable(classStore.currentPage);
-// };
 // 下拉表格
 const expands = ref([]);
+const handleExpand = async (row, expandedRows) => {
+  expands.value = [];
+  if (expandedRows.length > 0) {
+    row ? expands.value.push(row.id) : "";
+  }
+};
 // 分页
 const classStore = useClassStore();
 // 上传文件的对话框是否可见
@@ -301,9 +260,9 @@ const classStore = useClassStore();
 //   });
 // };
 // 处理excel上传
-const handleUpload = () => {
-  uploadDialogVisiable.value = true;
-};
+// const handleUpload = () => {
+//   uploadDialogVisiable.value = true;
+// };
 </script>
 
 <style scoped></style>

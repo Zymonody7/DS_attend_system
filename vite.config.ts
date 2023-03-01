@@ -43,7 +43,14 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
       port: VITE_PORT,
       host: "0.0.0.0",
       // 本地跨域代理 https://cn.vitejs.dev/config/server-options.html#server-proxy
-      proxy: {}
+      proxy: {
+        "/api": {
+          target: "http://192.168.232.109:1141", // 接口的域名
+          secure: false, // 如果是https接口，需要配置这个参数
+          changeOrigin: true, // 如果接口跨域，需要进行这个参数配置
+          rewrite: path => path.replace(/^\/api/, "/api")
+        }
+      }
     },
     plugins: getPluginsList(command, VITE_CDN, VITE_COMPRESSION),
     // https://cn.vitejs.dev/config/dep-optimization-options.html#dep-optimization-options
