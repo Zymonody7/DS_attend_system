@@ -1,4 +1,6 @@
+import { ClassResult } from "@/api/class";
 import { defineStore } from "pinia";
+import classApi from "@/api/class";
 export const useClassStore = defineStore("class", {
   state: () => ({
     currentPage: 1,
@@ -6,10 +8,10 @@ export const useClassStore = defineStore("class", {
   }),
   actions: {
     async fetchClassList(page: number): Promise<ClassResult> {
-      // const data = await parkApi.getList(page);
-      // this.total = data.pageInfo.total;
-      // console.log(data);
-      // return data;
+      const data = await classApi.getList(page);
+      this.total = data.pageInfo.total;
+      console.log(data);
+      return data;
     }
   }
 });

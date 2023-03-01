@@ -174,7 +174,7 @@ import Motion from "./utils/motion";
 // import { classCreateRequest, classType } from "@/api/class";
 import { ElButton, ElTable, ElTableColumn } from "element-plus";
 import { onMounted, ref, reactive, getCurrentInstance } from "vue";
-// import { useEditDialog } from "@/hooks/useEditDialog";
+import { useEditDialog } from "@/hooks/useEditDialog";
 import editDialog from "./editDialog.vue";
 import { message } from "@/utils/message";
 import { useClassStore } from "@/store/modules/class";
@@ -227,14 +227,14 @@ const handleFilter = (value: string, row) => {
 };
 // 增加或修改
 const handleSearchByName = () => {};
-// const {
-//   showDialog,
-//   editData,
-//   handleCreate,
-//   handleEdit,
-//   onDialogClose,
-//   handleConfirm
-// } = useEditDialog<classType, classCreateRequest>(classApi, "园区");
+const {
+  showDialog,
+  editData,
+  handleCreate,
+  handleEdit,
+  onDialogClose,
+  handleConfirm
+} = useEditDialog<classType, classCreateRequest>(classApi, "班级");
 // 批量删除
 const classForm = ref();
 const multipleSelection = ref(false);
